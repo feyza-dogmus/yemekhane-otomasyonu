@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistem Durumu</title>
+  <link rel="stylesheet" href="/css/temel.css">
+</head>
+<body>
+  <main class="kapsayici">
+    <h1>Sistem Durumu</h1>
+    <% if (hata) { %>
+      <p class="bildirim bildirim-hata" role="alert"><%= hata %></p>
+    <% } else { %>
+      <p class="bildirim bildirim-basari">Yazma bağlantısı: <%= yazma.sunucu %> (salt okunur: <%= yazma.salt_okunur %>)</p>
+      <p class="bildirim bildirim-basari">Okuma bağlantısı: <%= okuma.sunucu %> (salt okunur: <%= okuma.salt_okunur %>)</p>
+    <% } %>
+  </main>
+</body>
+</html>
