@@ -113,12 +113,12 @@ services:
 
   # ---------------------------------------------------------------
   # Apache 2.4 · HTML/CSS'i sunar, uygulama isteklerini uygulama servisine iletir.
-  # Mod seçimi: aşağıdaki "-D WEBAPI" değerini MVC yolunu seçtiyseniz "-D MVC" yapın.
+  # Mod: MVC seçildi (CSS/görsel/JS Apache'den, geri kalan her şey uygulamadan).
   # ---------------------------------------------------------------
   frontend:
     build: ./apache
     restart: unless-stopped
-    command: ["httpd-foreground", "-D", "WEBAPI"]
+    command: ["httpd-foreground", "-D", "MVC"]
     environment:
       # Uygulamanızın container içinde dinlediği adres. Port farklıysa burayı değiştirin.
       UYGULAMA_ADRES: http://uygulama:8000
@@ -133,23 +133,20 @@ services:
       retries: 5
 
   # ---------------------------------------------------------------
-  # UYGULAMA · BU SERVİSİ SİZ YAZACAKSINIZ (Aşama 2)
-  # 1. ./uygulama klasörüne kodunuzu ve Dockerfile'ı koyun.
-  # 2. Uygulama container içinde 8000 portunu dinlesin (ya da UYGULAMA_ADRES'i değiştirin).
-  # 3. Aşağıdaki satırların başındaki "# " işaretlerini kaldırın.
+  # UYGULAMA · Express (MVC) servisi
   # ---------------------------------------------------------------
-  # uygulama:
-  #   build: ./uygulama
-  #   restart: unless-stopped
-  #   environment:
-  #     <<: *uygulama-ortam
-  #   depends_on:
-  #     mysql-primary:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     replica-setup:
-  #       condition: service_completed_successfully
+  uygulama:
+    build: ./uygulama
+    restart: unless-stopped
+    environment:
+      <<: *uygulama-ortam
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      replica-setup:
+        condition: service_completed_successfully
 
 volumes:
   mysql-primary-veri:
