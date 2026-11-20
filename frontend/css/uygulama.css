@@ -1,0 +1,28 @@
+/* Uygulamaya özgü stiller. temel.css üzerine eklenir. Mobil önce. */
+
+.ustbar { background: var(--ana); color: #fff; }
+.ustbar .kapsayici {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  padding-block: 0.5rem;
+}
+.ustbar a { color: #fff; text-decoration: none; font-weight: 600; }
+.ustbar .marka { font-size: var(--boyut-buyuk); }
+.ustbar nav { display: flex; flex-wrap: wrap; gap: 0 1rem; flex: 1; }
+.ustbar nav a { display: inline-block; padding: 0.6rem 0; min-height: 44px; }
+.ustbar form { display: flex; align-items: center; gap: 0.75rem; margin: 0; }
+.kullanici-ad { font-size: var(--boyut-kucuk); }
+
+.dugme-ikincil { background: transparent; border: 1px solid #fff; }
+.dugme-ikincil:hover { background: var(--ana-koyu); }
+
+.kart {
+  background: var(--yuzey);
+  border-radius: var(--kose);
+  padding: var(--bosluk);
+  margin-block: 1.5rem;
+}
+.kart.dar { max-width: 420px; margin-inline: auto; }
+.form-grup { margin-bottom: 1rem; }

@@ -1,0 +1,21 @@
+<%- include('partials/ust', { baslik: 'Giriş' }) %>
+<main class="kapsayici">
+  <section class="kart dar">
+    <h1>Giriş</h1>
+    <% if (hata) { %>
+      <p class="bildirim bildirim-hata" role="alert"><%= hata %></p>
+    <% } %>
+    <form method="post" action="/giris">
+      <div class="form-grup">
+        <label for="eposta">E-posta</label>
+        <input id="eposta" name="eposta" type="email" value="<%= eposta %>" required autofocus>
+      </div>
+      <div class="form-grup">
+        <label for="sifre">Şifre</label>
+        <input id="sifre" name="sifre" type="password" required>
+      </div>
+      <button class="dugme" type="submit">Giriş yap</button>
+    </form>
+  </section>
+</main>
+<%- include('partials/alt') %>
