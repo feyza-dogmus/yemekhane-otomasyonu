@@ -12,9 +12,11 @@
   <div class="kapsayici">
     <a class="marka" href="/">Yemekhane</a>
     <% if (kullanici) { %>
-      <nav>
+            <nav>
         <a href="/menu">Günün Menüsü</a>
         <a href="/haftalik">Haftalık Menü</a>
+        <a href="/rezervasyonlarim">Rezervasyonlarım</a>
+        <a href="/bakiye">Bakiye</a>
       </nav>
       <form method="post" action="/cikis">
         <span class="kullanici-ad"><%= kullanici.ad %> <%= kullanici.soyad %></span>

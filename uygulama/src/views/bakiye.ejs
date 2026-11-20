@@ -1,0 +1,44 @@
+<%- include('partials/ust', { baslik: 'Bakiye' }) %>
+<main class="kapsayici">
+  <h1>Bakiye</h1>
+
+  <section class="kart">
+    <p class="soluk">Güncel bakiye</p>
+    <p class="bakiye-tutar"><%= Number(bakiye).toFixed(2) %> TL</p>
+
+    <form class="yukleme" method="post" action="/bakiye/yukle">
+      <div class="form-grup">
+        <label for="tutar">Yüklenecek tutar (10 – 1000 TL)</label>
+        <input id="tutar" name="tutar" type="text" inputmode="decimal" placeholder="Örn. 100" required>
+      </div>
+      <button class="dugme" type="submit">Bakiye yükle</button>
+    </form>
+  </section>
+
+  <section class="kart">
+    <h2>Hareket geçmişi</h2>
+    <% if (hareketler.length === 0) { %>
+      <p class="soluk">Henüz hareket yok.</p>
+    <% } else { %>
+      <div class="tablo-kaydir">
+        <table class="hareket-tablo">
+          <thead>
+            <tr><th>Tarih</th><th>İşlem</th><th class="sag">Tutar</th></tr>
+          </thead>
+          <tbody>
+            <% hareketler.forEach(h => { %>
+              <tr>
+                <td><%= h.olusturma.slice(0, 16) %></td>
+                <td><%= h.aciklama || h.tur %></td>
+                <td class="sag <%= Number(h.tutar) > 0 ? 'artis' : 'azalis' %>">
+                  <%= Number(h.tutar) > 0 ? '+' : '' %><%= Number(h.tutar).toFixed(2) %> TL
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/alt') %>

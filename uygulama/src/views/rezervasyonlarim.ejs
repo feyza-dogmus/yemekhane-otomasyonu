@@ -1,0 +1,41 @@
+<%- include('partials/ust', { baslik: 'Rezervasyonlarım' }) %>
+<main class="kapsayici">
+  <h1>Rezervasyonlarım</h1>
+
+  <% if (rezervasyonlar.length === 0) { %>
+    <p class="bildirim">Henüz rezervasyonunuz yok. <a href="/haftalik">Haftalık menüden</a> rezervasyon yapabilirsiniz.</p>
+  <% } %>
+
+  <% const etiket = { aktif: 'Aktif', kullanildi: 'Kullanıldı', iptal: 'İptal' }; %>
+  <% const rozet = { aktif: 'rozet-yesil', kullanildi: 'rozet-gri', iptal: 'rozet-kirmizi' }; %>
+
+  <% rezervasyonlar.forEach(r => { %>
+    <section class="kart">
+      <div class="menu-satir ilk">
+        <div class="menu-bilgi">
+          <strong><%= trTarih(r.tarih) %> · <%= r.ogun %></strong>
+          <span><%= r.yemekhane %></span>
+          <span>Ücret: <strong><%= Number(r.ucret).toFixed(2) %> TL</strong></span>
+          <span class="rozet <%= rozet[r.durum] %>"><%= etiket[r.durum] %></span>
+        </div>
+        <div class="menu-eylem">
+          <% if (r.durum === 'aktif') { %>
+            <% if (Number(r.iptal_edilebilir) === 1) { %>
+              <form method="post" action="/rezervasyon/<%= r.id %>/iptal">
+                <button class="dugme dugme-tehlike" type="submit">İptal et</button>
+              </form>
+            <% } else { %>
+              <button class="dugme" type="button" disabled>İptal süresi doldu</button>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+      <p class="soluk">
+        Son saat: <%= r.rezervasyon_son.slice(11, 16) %>
+        <% if (r.kullanma_zamani) { %> · Kullanım: <%= r.kullanma_zamani.slice(0, 16) %><% } %>
+        <% if (r.iptal_zamani) { %> · İptal: <%= r.iptal_zamani.slice(0, 16) %><% } %>
+      </p>
+    </section>
+  <% }) %>
+</main>
+<%- include('partials/alt') %>

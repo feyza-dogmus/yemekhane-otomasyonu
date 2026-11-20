@@ -35,7 +35,8 @@ app.get('/', girisGerekli, (req, res) => res.redirect('/menu'));
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/sistem'));
 app.use('/', require('./routes/menu'));
-
+app.use('/', require('./routes/rezervasyon'));
+app.use('/', require('./routes/bakiye'));
 app.listen(PORT, () => {
   console.log(`Uygulama ${PORT} portunda çalışıyor`);
 });

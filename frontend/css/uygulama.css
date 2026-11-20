@@ -71,3 +71,19 @@
 .menu-bilgi { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: center; }
 .menu-eylem form { margin: 0; }
 .bos-az { color: var(--hata); font-weight: 600; }
+
+/* Rezervasyonlarım ve bakiye */
+.rozet-gri { background: #E8ECEB; color: var(--metin-soluk); }
+.rozet-kirmizi { background: var(--hata-zemin); color: var(--hata); }
+.dugme-tehlike { background: var(--hata); }
+.dugme-tehlike:hover { background: #8C1D17; }
+.menu-satir.ilk { border-top: 0; padding-top: 0; }
+
+.bakiye-tutar { font-size: var(--boyut-baslik); font-weight: 700; margin: 0 0 1rem; }
+.yukleme { max-width: 320px; }
+
+.hareket-tablo { width: 100%; border-collapse: collapse; font-size: var(--boyut-kucuk); }
+.hareket-tablo th, .hareket-tablo td { text-align: left; padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--cizgi); }
+.hareket-tablo .sag { text-align: right; white-space: nowrap; }
+.artis { color: var(--basari); font-weight: 600; }
+.azalis { color: var(--hata); font-weight: 600; }
