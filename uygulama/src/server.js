@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const { girisGerekli } = require('./middleware/oturum');
+const { trTarih } = require('./yardimci/tarih');
 
 const app = express();
 const PORT = 8000;
@@ -20,18 +21,20 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 30 * 60 * 1000 },
 }));
 
-// Tüm şablonlarda giriş yapmış kullanıcı kullanılabilir
+// Tüm şablonlarda kullanılabilen değerler. "mesaj" bir kez gösterilip silinir.
 app.use((req, res, next) => {
   res.locals.kullanici = req.session.kullanici || null;
+  res.locals.mesaj = req.session.mesaj || null;
+  delete req.session.mesaj;
+  res.locals.trTarih = trTarih;
   next();
 });
 
-app.get('/', girisGerekli, (req, res) => {
-  res.render('ana');
-});
+app.get('/', girisGerekli, (req, res) => res.redirect('/menu'));
 
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/sistem'));
+app.use('/', require('./routes/menu'));
 
 app.listen(PORT, () => {
   console.log(`Uygulama ${PORT} portunda çalışıyor`);

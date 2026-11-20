@@ -26,3 +26,48 @@
 }
 .kart.dar { max-width: 420px; margin-inline: auto; }
 .form-grup { margin-bottom: 1rem; }
+.mesaj-alani { margin-top: 1rem; }
+.soluk { color: var(--metin-soluk); font-size: var(--boyut-kucuk); }
+
+/* Filtre formu: telefonda alt alta, geniş ekranda yan yana */
+.filtre { display: flex; flex-wrap: wrap; gap: 0 1rem; align-items: flex-end; margin-block: 1rem; }
+.filtre .form-grup { flex: 1 1 160px; }
+.filtre .dugme { margin-bottom: 1rem; }
+
+/* Rozetler */
+.rozet {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: var(--boyut-kucuk);
+  font-weight: 600;
+}
+.rozet-yesil { background: var(--basari-zemin); color: var(--basari); }
+.rozet-sari  { background: #FFF3D6; color: #7A5300; }
+
+/* Günün menüsü */
+.yemek-listesi { list-style: none; margin: 0 0 1rem; padding: 0; }
+.yemek-listesi li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--cizgi);
+}
+.yemek-listesi .kategori { flex: 0 0 100%; font-size: var(--boyut-kucuk); color: var(--metin-soluk); }
+
+/* Haftalık menü */
+.gun-baslik { text-transform: capitalize; }
+.menu-satir {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--cizgi);
+}
+.menu-bilgi { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: center; }
+.menu-eylem form { margin: 0; }
+.bos-az { color: var(--hata); font-weight: 600; }

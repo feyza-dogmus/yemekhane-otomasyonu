@@ -1,0 +1,51 @@
+<%- include('partials/ust', { baslik: 'Günün Menüsü' }) %>
+<main class="kapsayici">
+  <h1>Günün Menüsü</h1>
+
+  <form class="filtre" method="get" action="/menu">
+    <div class="form-grup">
+      <label for="yemekhane">Yemekhane</label>
+      <select id="yemekhane" name="yemekhane">
+        <% yemekhaneler.forEach(y => { %>
+          <option value="<%= y.id %>" <%= y.id === yemekhaneId ? 'selected' : '' %>><%= y.ad %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-grup">
+      <label for="ogun">Öğün</label>
+      <select id="ogun" name="ogun">
+        <% ogunler.forEach(o => { %>
+          <option value="<%= o.id %>" <%= o.id === ogunId ? 'selected' : '' %>><%= o.ad %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-grup">
+      <label for="tarih">Tarih</label>
+      <input id="tarih" name="tarih" type="date" value="<%= tarih %>">
+    </div>
+    <button class="dugme" type="submit">Göster</button>
+  </form>
+
+  <% if (!menu) { %>
+    <p class="bildirim">Bu seçim için menü bulunamadı.</p>
+  <% } else { %>
+    <section class="kart">
+      <h2><%= menu.yemekhane %> · <%= menu.ogun %> · <%= trTarih(tarih) %></h2>
+      <p class="soluk">Rezervasyon son saati: <%= menu.rezervasyonSon.slice(11, 16) %></p>
+      <ul class="yemek-listesi">
+        <% menu.yemekler.forEach(y => { %>
+          <li>
+            <span class="kategori"><%= y.kategori %></span>
+            <strong><%= y.yemek %></strong>
+            <span class="soluk"><%= y.kalori %> kcal</span>
+            <% if (y.vejetaryen) { %><span class="rozet rozet-yesil">Vejetaryen</span><% } %>
+            <% if (y.alerjenler) { %><span class="rozet rozet-sari">Alerjen: <%= y.alerjenler %></span><% } %>
+          </li>
+        <% }) %>
+      </ul>
+      <p><strong>Toplam: <%= menu.toplamKalori %> kcal</strong> · Fiyatınız: <%= Number(menu.fiyat).toFixed(2) %> TL</p>
+      <a class="dugme" href="/haftalik?yemekhane=<%= yemekhaneId %>">Rezervasyon için haftalık menüye git</a>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/alt') %>

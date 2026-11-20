@@ -1,0 +1,55 @@
+<%- include('partials/ust', { baslik: 'Haftalık Menü' }) %>
+<main class="kapsayici">
+  <h1>Haftalık Menü ve Rezervasyon</h1>
+
+  <form class="filtre" method="get" action="/haftalik">
+    <div class="form-grup">
+      <label for="yemekhane">Yemekhane</label>
+      <select id="yemekhane" name="yemekhane">
+        <% yemekhaneler.forEach(y => { %>
+          <option value="<%= y.id %>" <%= y.id === yemekhaneId ? 'selected' : '' %>><%= y.ad %></option>
+        <% }) %>
+      </select>
+    </div>
+    <button class="dugme" type="submit">Göster</button>
+  </form>
+
+  <% if (Object.keys(gunler).length === 0) { %>
+    <p class="bildirim">Önümüzdeki günler için menü bulunamadı.</p>
+  <% } %>
+
+  <% Object.keys(gunler).forEach(tarih => { %>
+    <section class="kart">
+      <h2 class="gun-baslik"><%= trTarih(tarih) %></h2>
+      <% gunler[tarih].forEach(m => { %>
+        <div class="menu-satir">
+          <div class="menu-bilgi">
+            <strong><%= m.ogun %></strong>
+            <span class="soluk">Son saat: <%= m.rezervasyon_son.slice(11, 16) %></span>
+            <span>Fiyat: <strong><%= Number(m.fiyat).toFixed(2) %> TL</strong></span>
+            <span class="<%= m.bos_yer <= 5 ? 'bos-az' : '' %>">Boş yer: <%= m.bos_yer %></span>
+            <a href="/menu?yemekhane=<%= yemekhaneId %>&tarih=<%= tarih %>&ogun=<%= m.ogun_id %>">Menüyü gör</a>
+          </div>
+          <div class="menu-eylem">
+            <% if (m.rezervasyon_durumu === 'aktif' || m.rezervasyon_durumu === 'kullanildi') { %>
+              <span class="rozet rozet-yesil">Rezerve edildi</span>
+            <% } else { %>
+              <form method="post" action="/rezervasyon">
+                <input type="hidden" name="menu_id" value="<%= m.menu_id %>">
+                <input type="hidden" name="yemekhane" value="<%= yemekhaneId %>">
+                <% if (m.suresi_doldu) { %>
+                  <button class="dugme" type="button" disabled>Süre doldu</button>
+                <% } else if (m.bos_yer <= 0) { %>
+                  <button class="dugme" type="button" disabled>Dolu</button>
+                <% } else { %>
+                  <button class="dugme" type="submit">Rezervasyon yap</button>
+                <% } %>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </section>
+  <% }) %>
+</main>
+<%- include('partials/alt') %>

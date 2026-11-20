@@ -11,10 +11,11 @@
 <header class="ustbar">
   <div class="kapsayici">
     <a class="marka" href="/">Yemekhane</a>
-    <nav>
-      <a href="/">Ana Sayfa</a>
-    </nav>
     <% if (kullanici) { %>
+      <nav>
+        <a href="/menu">Günün Menüsü</a>
+        <a href="/haftalik">Haftalık Menü</a>
+      </nav>
       <form method="post" action="/cikis">
         <span class="kullanici-ad"><%= kullanici.ad %> <%= kullanici.soyad %></span>
         <button class="dugme dugme-ikincil" type="submit">Çıkış</button>
@@ -22,3 +23,8 @@
     <% } %>
   </div>
 </header>
+<% if (mesaj) { %>
+  <div class="kapsayici mesaj-alani">
+    <p class="bildirim bildirim-<%= mesaj.tur %>" role="<%= mesaj.tur === 'hata' ? 'alert' : 'status' %>"><%= mesaj.metin %></p>
+  </div>
+<% } %>
