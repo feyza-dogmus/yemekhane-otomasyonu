@@ -87,3 +87,21 @@
 .hareket-tablo .sag { text-align: right; white-space: nowrap; }
 .artis { color: var(--basari); font-weight: 600; }
 .azalis { color: var(--hata); font-weight: 600; }
+
+/* Değerlendirme ve yönetim */
+.secenek { display: flex; align-items: center; gap: 0.5rem; min-height: 44px; font-weight: 400; margin: 0; }
+.secenek input { width: auto; flex: none; }
+.yemek-grup { border: 0; padding: 0; margin: 0 0 1rem; }
+.yemek-grup legend { font-weight: 700; padding: 0; margin-bottom: 0.25rem; }
+.alan-cift { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+.alan-cift .form-grup { flex: 1 1 160px; }
+.eylem-satir { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: center; margin-top: 1rem; }
+.degerlendirme-form textarea { min-height: 80px; resize: vertical; }
+
+.yonetim-tablo { width: 100%; border-collapse: collapse; font-size: var(--boyut-kucuk); }
+.yonetim-tablo th, .yonetim-tablo td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--cizgi);
+  white-space: nowrap;
+}

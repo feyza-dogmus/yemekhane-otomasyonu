@@ -1,0 +1,38 @@
+<%- include('partials/ust', { baslik: 'Değerlendirme' }) %>
+<main class="kapsayici">
+  <h1>Değerlendirme</h1>
+  <p class="soluk">Yalnızca kullandığınız (turnikeden geçtiğiniz) menüleri değerlendirebilirsiniz.</p>
+
+  <% if (menuler.length === 0) { %>
+    <p class="bildirim">Henüz kullanılmış bir menünüz yok.</p>
+  <% } %>
+
+  <% menuler.forEach(m => { %>
+    <section class="kart">
+      <h2><%= trTarih(m.tarih) %> · <%= m.ogun %></h2>
+      <p class="soluk">
+        <%= m.yemekhane %> ·
+        <a href="/menu?yemekhane=<%= m.yemekhane_id %>&tarih=<%= m.tarih %>&ogun=<%= m.ogun_id %>">Menüyü gör</a>
+        <% if (m.puan !== null) { %> · <span class="rozet rozet-yesil">Puanınız: <%= m.puan %>/5</span><% } %>
+      </p>
+      <form class="degerlendirme-form" method="post" action="/degerlendirme">
+        <input type="hidden" name="menu_id" value="<%= m.menu_id %>">
+        <div class="form-grup">
+          <label for="puan-<%= m.menu_id %>">Puan</label>
+          <select id="puan-<%= m.menu_id %>" name="puan" required>
+            <% if (m.puan === null) { %><option value="" selected disabled>Seçin</option><% } %>
+            <% for (let p = 1; p <= 5; p++) { %>
+              <option value="<%= p %>" <%= m.puan === p ? 'selected' : '' %>><%= p %></option>
+            <% } %>
+          </select>
+        </div>
+        <div class="form-grup">
+          <label for="yorum-<%= m.menu_id %>">Yorum (isteğe bağlı)</label>
+          <textarea id="yorum-<%= m.menu_id %>" name="yorum" maxlength="500" rows="3"><%= m.yorum || '' %></textarea>
+        </div>
+        <button class="dugme" type="submit"><%= m.puan === null ? 'Değerlendir' : 'Güncelle' %></button>
+      </form>
+    </section>
+  <% }) %>
+</main>
+<%- include('partials/alt') %>

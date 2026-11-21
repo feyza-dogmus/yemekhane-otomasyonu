@@ -1,0 +1,60 @@
+<%- include('partials/ust', { baslik: 'Yönetim' }) %>
+<main class="kapsayici">
+  <h1>Yönetici Paneli</h1>
+
+  <form class="filtre" method="get" action="/yonetim">
+    <div class="form-grup">
+      <label for="yemekhane">Yemekhane</label>
+      <select id="yemekhane" name="yemekhane">
+        <option value="" <%= !yemekhaneId ? 'selected' : '' %>>Tümü</option>
+        <% yemekhaneler.forEach(y => { %>
+          <option value="<%= y.id %>" <%= y.id === yemekhaneId ? 'selected' : '' %>><%= y.ad %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-grup">
+      <label for="baslangic">Başlangıç</label>
+      <input id="baslangic" name="baslangic" type="date" value="<%= baslangic %>">
+    </div>
+    <div class="form-grup">
+      <label for="bitis">Bitiş</label>
+      <input id="bitis" name="bitis" type="date" value="<%= bitis %>">
+    </div>
+    <button class="dugme" type="submit">Filtrele</button>
+  </form>
+
+  <p><a class="dugme" href="/yonetim/menu/yeni">Yeni menü oluştur</a></p>
+
+  <% if (menuler.length === 0) { %>
+    <p class="bildirim">Bu aralıkta menü bulunamadı.</p>
+  <% } else { %>
+    <div class="tablo-kaydir">
+      <table class="yonetim-tablo">
+        <thead>
+          <tr>
+            <th>Tarih</th><th>Yemekhane</th><th>Öğün</th><th>Doluluk</th>
+            <th>Fiyat (öğr. / per.)</th><th>Puan</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% menuler.forEach(m => { %>
+            <tr>
+              <td><%= trTarih(m.tarih) %></td>
+              <td><%= m.yemekhane %></td>
+              <td><%= m.ogun %></td>
+              <td><%= m.rezerve %> / <%= m.kapasite %> (<%= m.doluluk_yuzde %>%)</td>
+              <td><%= Number(m.ogrenci_fiyati).toFixed(2) %> / <%= Number(m.personel_fiyati).toFixed(2) %> TL</td>
+              <td>
+                <% if (m.ortalama_puan === null) { %>—<% } else { %>
+                  <%= Number(m.ortalama_puan).toFixed(2) %> (<%= m.oy_sayisi %> oy)
+                <% } %>
+              </td>
+              <td><a href="/yonetim/menu/<%= m.menu_id %>/duzenle">Düzenle</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</main>
+<%- include('partials/alt') %>

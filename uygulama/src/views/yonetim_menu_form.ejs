@@ -1,0 +1,72 @@
+<%- include('partials/ust', { baslik: yeni ? 'Yeni Menü' : 'Menü Düzenle' }) %>
+<main class="kapsayici">
+  <h1><%= yeni ? 'Yeni Menü' : 'Menü Düzenle' %></h1>
+
+  <% if (hata) { %>
+    <p class="bildirim bildirim-hata" role="alert"><%= hata %></p>
+  <% } %>
+
+  <form method="post" action="<%= yeni ? '/yonetim/menu' : '/yonetim/menu/' + menu.id %>">
+    <section class="kart">
+      <% if (yeni) { %>
+        <div class="alan-cift">
+          <div class="form-grup">
+            <label for="yemekhane">Yemekhane</label>
+            <select id="yemekhane" name="yemekhane">
+              <% yemekhaneler.forEach(y => { %>
+                <option value="<%= y.id %>" <%= y.id === menu.yemekhaneId ? 'selected' : '' %>><%= y.ad %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-grup">
+            <label for="ogun">Öğün</label>
+            <select id="ogun" name="ogun">
+              <% ogunler.forEach(o => { %>
+                <option value="<%= o.id %>" <%= o.id === menu.ogunId ? 'selected' : '' %>><%= o.ad %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-grup">
+            <label for="tarih">Tarih</label>
+            <input id="tarih" name="tarih" type="date" value="<%= menu.tarih %>" required>
+          </div>
+        </div>
+      <% } else { %>
+        <p><strong><%= menu.yemekhane %> · <%= menu.ogun %> · <%= trTarih(menu.tarih) %></strong></p>
+        <p class="soluk">Yemekhane, tarih ve öğün değiştirilemez; mevcut rezervasyonlar bu menüye bağlıdır.</p>
+      <% } %>
+
+      <div class="alan-cift">
+        <div class="form-grup">
+          <label for="ogrenci_fiyati">Öğrenci fiyatı (TL)</label>
+          <input id="ogrenci_fiyati" name="ogrenci_fiyati" type="text" inputmode="decimal" value="<%= menu.ogrenciFiyati %>" required>
+        </div>
+        <div class="form-grup">
+          <label for="personel_fiyati">Personel fiyatı (TL)</label>
+          <input id="personel_fiyati" name="personel_fiyati" type="text" inputmode="decimal" value="<%= menu.personelFiyati %>" required>
+        </div>
+      </div>
+    </section>
+
+    <section class="kart">
+      <h2>Yemekler</h2>
+      <% gruplar.forEach(g => { %>
+        <fieldset class="yemek-grup">
+          <legend><%= g.kategori %></legend>
+          <% g.yemekler.forEach(y => { %>
+            <label class="secenek">
+              <input type="checkbox" name="yemek" value="<%= y.id %>" <%= menu.yemekIdler.includes(y.id) ? 'checked' : '' %>>
+              <span><%= y.ad %> <span class="soluk">(<%= y.kalori %> kcal)</span></span>
+            </label>
+          <% }) %>
+        </fieldset>
+      <% }) %>
+    </section>
+
+    <div class="eylem-satir">
+      <button class="dugme" type="submit">Kaydet</button>
+      <a href="/yonetim">Vazgeç</a>
+    </div>
+  </form>
+</main>
+<%- include('partials/alt') %>

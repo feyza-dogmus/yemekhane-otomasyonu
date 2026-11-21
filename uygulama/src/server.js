@@ -21,10 +21,10 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 30 * 60 * 1000 },
 }));
 
-// Tüm şablonlarda kullanılabilen değerler. "mesaj" bir kez gösterilip silinir.
+// Tüm şablonlarda kullanılabilen değerler. "bildirim" bir kez gösterilip silinir.
 app.use((req, res, next) => {
   res.locals.kullanici = req.session.kullanici || null;
-  res.locals.mesaj = req.session.mesaj || null;
+  res.locals.bildirim = req.session.mesaj || null;
   delete req.session.mesaj;
   res.locals.trTarih = trTarih;
   next();
@@ -37,6 +37,9 @@ app.use('/', require('./routes/sistem'));
 app.use('/', require('./routes/menu'));
 app.use('/', require('./routes/rezervasyon'));
 app.use('/', require('./routes/bakiye'));
+app.use('/', require('./routes/degerlendirme'));
+app.use('/', require('./routes/yonetim'));
+
 app.listen(PORT, () => {
   console.log(`Uygulama ${PORT} portunda çalışıyor`);
 });
