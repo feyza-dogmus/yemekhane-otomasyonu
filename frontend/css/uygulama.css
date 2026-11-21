@@ -105,3 +105,12 @@
   border-bottom: 1px solid var(--cizgi);
   white-space: nowrap;
 }
+/* Telefonda üst menü: marka üstte, bağlantılar altında, kullanıcı en altta */
+main.kapsayici { padding-top: 1rem; }
+
+@media (max-width: 600px) {
+  .ustbar .marka { flex: 0 0 100%; }
+  .ustbar nav { flex: 0 0 100%; gap: 0 1rem; }
+  .ustbar nav a { min-height: 40px; padding: 0.5rem 0; }
+  .ustbar form { flex: 0 0 100%; justify-content: space-between; }
+}
