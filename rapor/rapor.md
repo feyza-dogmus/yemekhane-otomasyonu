@@ -238,3 +238,107 @@ Arayüz mobil önce yazılmış `temel.css` ve `uygulama.css` ile çalışır. 6
 ![telefon haftalik](ekran-goruntuleri/asama2-r17-telefon-haftalik.png)
 ![telefon rezervasyonlarim](ekran-goruntuleri/asama2-r18-telefon-rezervasyonlarim.png)
 ![telefon bakiye](ekran-goruntuleri/asama2-r19-telefon-bakiye.png)
+
+---
+
+## Aşama 3 · Redis
+
+Redis iki iş için kullanılıyor: oturum deposu ve menü önbelleği. Bağlantı `uygulama/src/config/redis.js` içinde, adres ortam değişkenlerinden (`REDIS_HOST`, `REDIS_PORT`) gelir.
+
+### 3.1 Oturum
+
+| Özellik | Değer |
+|---|---|
+| Anahtar | `oturum:{token}` |
+| Süre | 30 dakika |
+| Yenileme | Her istekte (`rolling: true`) |
+| Silinme | Çıkış yapıldığında (`session.destroy()`) |
+
+Oturum `express-session` ve `connect-redis` ile Redis'te tutulur (`uygulama/src/server.js`):
+
+```js
+app.use(session({
+  store: new RedisStore({
+    client: redis.istemci,
+    prefix: 'oturum:',
+    ttl: OTURUM_SURESI_MS / 1000,
+  }),
+  secret: process.env.OTURUM_SIRRI || 'yemekhane-ders-ortami',
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,
+  cookie: { httpOnly: true, maxAge: OTURUM_SURESI_MS },
+}));
+```
+
+**Anahtar ve süre.** Giriş yapıldıktan sonra Redis'te `oturum:` ile başlayan bir anahtar oluşur, kalan süre 30 dakikaya (1800 saniye) yakındır:
+
+```
+docker compose exec -T redis redis-cli --scan --pattern 'oturum:*'
+docker compose exec -T redis redis-cli ttl <anahtar>
+```
+
+![oturum ttl](ekran-goruntuleri/s3-01-oturum-ttl.png)
+
+**Her istekte yenilenir.** Anahtarın kalan süresi beklerken azalır (1721 → 1690, 30 saniyede), sayfa açılınca tekrar 30 dakikaya çıkar (1796):
+
+![ttl yenilendi](ekran-goruntuleri/s3-02-ttl-yenilendi.png)
+
+**Uygulama yeniden başlasa da oturum düşmez.** Oturum uygulamanın belleğinde değil Redis'te tutulduğu için `docker compose restart uygulama` sonrasında aynı anahtar yerinde kalır ve kullanıcı tekrar giriş yapmadan Bakiye sayfasına girebilir:
+
+![restart anahtar](ekran-goruntuleri/s3-12-restart-oturum-duruyor.png)
+![restart sonrasi sayfa](ekran-goruntuleri/s3-13-restart-sonrasi-sayfa.png)
+
+**Çıkışta silinir.** Çıkış yapılınca `session.destroy()` anahtarı Redis'ten siler, `--scan` çıktısı boş döner:
+
+![cikis sonrasi](ekran-goruntuleri/s3-14-cikis-sonrasi-bos.png)
+
+### 3.2 Menü önbelleği
+
+| Özellik | Değer |
+|---|---|
+| Anahtar | `menu:{yemekhane_id}:{tarih}:{ogun_id}` |
+| Süre | Menünün tarihindeki günün sonuna kadar |
+| Silinme | Yönetici o menüyü oluşturduğunda ya da değiştirdiğinde |
+
+Önbellek yalnızca **Günün Menüsü** sayfası için kullanılır. Kod `uygulama/src/onbellek/menuOnbellek.js` (Redis işlemleri) ve `uygulama/src/models/menuModel.js` (önce Redis, yoksa replika) içindedir:
+
+```js
+async function gunlukMenu(yemekhaneId, tarih, ogunId) {
+  const k = menuOnbellek.anahtar(yemekhaneId, tarih, ogunId);
+  const onbellekte = await menuOnbellek.al(k);
+  if (onbellekte) {
+    console.log(`[önbellek] İSABET ${k} (Redis'ten geldi)`);
+    return onbellekte;
+  }
+  console.log(`[önbellek] KAÇIRMA ${k} (veritabanından, replika)`);
+  const menu = await menuyuVeritabanindanOku(yemekhaneId, tarih, ogunId);
+  if (menu) await menuOnbellek.yaz(k, tarih, menu);
+  return menu;
+}
+```
+
+**İlk istek veritabanından, ikincisi Redis'ten gelir.** Uygulama günlüğünde `KAÇIRMA` ve ardından `İSABET` satırları görünür. Yönetici menüyü değiştirince `SİLİNDİ` satırı yazılır:
+
+![onbellek gunlugu](ekran-goruntuleri/s3-06-onbellek-gunluk.png)
+
+**Anahtar, süre ve içerik.** Kayıt günün sonuna kadar saklanır (TTL 8859 saniye, gece yarısına kalan süre). İçinde menüdeki yemekler, kaloriler ve hem öğrenci hem personel fiyatı bulunur:
+
+![menu icerigi](ekran-goruntuleri/s3-08-menu-icerigi.png)
+
+**Tasarım kararları:**
+
+- **Anahtarda rol yok.** Önbelleğe öğrenci ve personel fiyatı birlikte yazılır, kullanıcıya uygun olanı controller seçer. Böylece bir rolün isteği diğer rolün fiyatını bozmaz.
+- **Gecikmeli ikinci silme.** Replikasyon eşzamansızdır. Yönetici menüyü kaydedip anahtar silindiğinde replika değişikliği henüz almamışsa, araya giren bir okuma eski menüyü önbelleğe geri yazabilir. Bu yüzden anahtar 3 saniye sonra bir kez daha silinir (günlükte iki `SİLİNDİ` satırı bunun için görünür).
+- **Redis'e ulaşılamazsa** uygulama çalışmaya devam eder, istek doğrudan veritabanından cevaplanır.
+
+### 3.3 Menü güncellenince eski kayıt silinir, arayüz yeni menüyü gösterir
+
+Yönetici panelinde bugünün Merkez / Öğle menüsünün öğrenci fiyatı 40 TL'den 42 TL'ye değiştirildi. Kayıt silindi, `--scan` çıktısı boş döndü:
+
+![silme sonrasi](ekran-goruntuleri/s3-09-silme-sonrasi-bos.png)
+
+Öğrenci olarak giren kullanıcı yeni fiyatı (42.00 TL) görür, personel aynı menüde kendi fiyatını (90.00 TL) görür:
+
+![yeni fiyat](ekran-goruntuleri/s3-10-yeni-fiyat.png)
+![personel fiyat](ekran-goruntuleri/s3-11-murat-personel-fiyat.png)
