@@ -17,8 +17,11 @@ async function gunluk(req, res) {
     const yemekhaneId = sayi(req.query.yemekhane, 1);
     const ogunId = sayi(req.query.ogun, 2);
     const tarih = TARIH.test(req.query.tarih || '') ? req.query.tarih : bugun;
-    const menu = await menuModel.gunlukMenu(yemekhaneId, tarih, ogunId, req.session.kullanici.rol);
-    res.render('menu', { yemekhaneler, ogunler, yemekhaneId, ogunId, tarih, menu });
+    const menu = await menuModel.gunlukMenu(yemekhaneId, tarih, ogunId);
+    if (menu) {
+      // Önbellekteki menü role bağlı değildir; kullanıcının fiyatı burada seçilir.
+      menu.fiyat = req.session.kullanici.rol === 'ogrenci' ? menu.ogrenciFiyati : menu.personelFiyati;
+    }    res.render('menu', { yemekhaneler, ogunler, yemekhaneId, ogunId, tarih, menu });
   } catch (err) {
     console.error(err);
     res.status(500).render('hata', { mesaj: 'Menü yüklenemedi.' });

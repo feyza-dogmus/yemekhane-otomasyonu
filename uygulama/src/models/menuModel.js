@@ -1,5 +1,7 @@
 // Veri katmanı: menü okumaları REPLİKAdan yapılır.
+// Günlük menü Redis'te önbelleğe alınır (bkz. onbellek/menuOnbellek.js).
 const { okuma } = require('../config/db');
+const menuOnbellek = require('../onbellek/menuOnbellek');
 
 async function yemekhaneler() {
   const [s] = await okuma.query('SELECT id, ad FROM yemekhaneler ORDER BY id');
@@ -16,8 +18,7 @@ async function bugun() {
   return s[0].bugun;
 }
 
-// Tek menü: yemekler kategori sırasıyla, toplam kaloriyi burada toplarız.
-async function gunlukMenu(yemekhaneId, tarih, ogunId, rol) {
+async function menuyuVeritabanindanOku(yemekhaneId, tarih, ogunId) {
   const [yemekler] = await okuma.query(
     `SELECT menu_id, yemekhane, ogun, rezervasyon_son, ogrenci_fiyati, personel_fiyati,
             yemek, kategori, kalori, vejetaryen, alerjenler
@@ -33,10 +34,27 @@ async function gunlukMenu(yemekhaneId, tarih, ogunId, rol) {
     yemekhane: ilk.yemekhane,
     ogun: ilk.ogun,
     rezervasyonSon: ilk.rezervasyon_son,
-    fiyat: rol === 'ogrenci' ? ilk.ogrenci_fiyati : ilk.personel_fiyati,
+    ogrenciFiyati: ilk.ogrenci_fiyati,
+    personelFiyati: ilk.personel_fiyati,
     yemekler,
     toplamKalori: yemekler.reduce((t, y) => t + y.kalori, 0),
   };
+}
+
+// Önce Redis'e bakılır (isabet), yoksa replikadan okunup Redis'e yazılır (kaçırma).
+// Önbellekteki menü role bağlı değildir: iki fiyat da saklanır, kullanıcıya uygun olanı
+// controller seçer.
+async function gunlukMenu(yemekhaneId, tarih, ogunId) {
+  const k = menuOnbellek.anahtar(yemekhaneId, tarih, ogunId);
+  const onbellekte = await menuOnbellek.al(k);
+  if (onbellekte) {
+    console.log(`[önbellek] İSABET ${k} (Redis'ten geldi)`);
+    return onbellekte;
+  }
+  console.log(`[önbellek] KAÇIRMA ${k} (veritabanından, replika)`);
+  const menu = await menuyuVeritabanindanOku(yemekhaneId, tarih, ogunId);
+  if (menu) await menuOnbellek.yaz(k, tarih, menu);
+  return menu;
 }
 
 // Bugünden başlayarak 7 gün: doluluk, rolüne göre fiyat, kullanıcının rezervasyon durumu.

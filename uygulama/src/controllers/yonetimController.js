@@ -2,7 +2,7 @@ const menuModel = require('../models/menuModel');
 const yonetimModel = require('../models/yonetimModel');
 const { KullaniciHatasi, kullaniciMesaji } = require('../yardimci/hata');
 const { gecerliTarih } = require('../yardimci/tarih');
-
+const menuOnbellek = require('../onbellek/menuOnbellek');
 function tamSayi(deger) {
   const n = Number(deger);
   return Number.isInteger(n) && n > 0 ? n : null;
@@ -93,6 +93,7 @@ async function olustur(req, res) {
     }
     if (girdi.yemekIdler.length === 0) throw new KullaniciHatasi('En az bir yemek seçmelisiniz.');
     await yonetimModel.olustur(girdi);
+    await menuOnbellek.gecersizKil(girdi.yemekhaneId, girdi.tarih, girdi.ogunId);
     req.session.mesaj = { tur: 'basari', metin: 'Menü oluşturuldu.' };
     return res.redirect('/yonetim');
   } catch (err) {
@@ -130,9 +131,9 @@ async function guncelle(req, res) {
       throw new KullaniciHatasi('Fiyatlar 0 ile 9999,99 TL arasında olmalıdır.');
     }
     if (yemekIdler.length === 0) throw new KullaniciHatasi('En az bir yemek seçmelisiniz.');
-    await yonetimModel.guncelle(id, ogrenciFiyati, personelFiyati, yemekIdler);
-    // Aşama 3: burada menu:{yemekhane_id}:{tarih}:{ogun_id} Redis kaydı silinecek.
-    req.session.mesaj = { tur: 'basari', metin: 'Menü güncellendi.' };
+        const degisen = await yonetimModel.guncelle(id, ogrenciFiyati, personelFiyati, yemekIdler);
+    // Menü değişti: eski önbellek kaydı silinir (menu:{yemekhane_id}:{tarih}:{ogun_id}).
+    await menuOnbellek.gecersizKil(degisen.yemekhaneId, degisen.tarih, degisen.ogunId);req.session.mesaj = { tur: 'basari', metin: 'Menü güncellendi.' };
     return res.redirect('/yonetim');
   } catch (err) {
     const menu = id ? await yonetimModel.menuBul(id).catch(() => null) : null;
