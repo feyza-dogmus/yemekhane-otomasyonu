@@ -1,0 +1,26 @@
+<%- include('partials/ust', { baslik: 'Profil' }) %>
+<main class="kapsayici">
+  <h1>Profil</h1>
+
+  <section class="kart">
+    <h2><%= kullanici.ad %> <%= kullanici.soyad %></h2>
+    <p class="soluk">Rol: <%= kullanici.rol %></p>
+  </section>
+
+  <section class="kart">
+    <h2>Alerjenlerim</h2>
+    <p class="soluk">Seçtiğiniz alerjenleri içeren yemekler, Günün Menüsü'nde uyarıyla gösterilir.</p>
+    <form method="post" action="/profil/alerjenler">
+      <div class="alerjen-secenekleri">
+        <% alerjenler.forEach(a => { %>
+          <label class="secenek">
+            <input type="checkbox" name="alerjen" value="<%= a.id %>" <%= secili.includes(a.id) ? 'checked' : '' %>>
+            <span><%= a.ad %></span>
+          </label>
+        <% }) %>
+      </div>
+      <button class="dugme" type="submit">Kaydet</button>
+    </form>
+  </section>
+</main>
+<%- include('partials/alt') %>

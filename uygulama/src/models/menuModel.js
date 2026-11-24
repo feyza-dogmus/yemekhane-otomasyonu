@@ -21,7 +21,7 @@ async function bugun() {
 async function menuyuVeritabanindanOku(yemekhaneId, tarih, ogunId) {
   const [yemekler] = await okuma.query(
     `SELECT menu_id, yemekhane, ogun, rezervasyon_son, ogrenci_fiyati, personel_fiyati,
-            yemek, kategori, kalori, vejetaryen, alerjenler
+            yemek, kategori, kalori, vejetaryen, alerjenler, alerjen_idler
        FROM v_menu_detay
       WHERE yemekhane_id = ? AND tarih = ? AND ogun_id = ?
       ORDER BY kategori_sira, yemek`,

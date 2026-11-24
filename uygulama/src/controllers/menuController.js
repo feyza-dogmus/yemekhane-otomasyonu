@@ -1,4 +1,5 @@
 const menuModel = require('../models/menuModel');
+const kullaniciModel = require('../models/kullaniciModel');
 const rezervasyonModel = require('../models/rezervasyonModel');
 const { kullaniciMesaji } = require('../yardimci/hata');
 
@@ -7,6 +8,24 @@ const TARIH = /^\d{4}-\d{2}-\d{2}$/;
 function sayi(deger, varsayilan) {
   const n = Number(deger);
   return Number.isInteger(n) && n > 0 ? n : varsayilan;
+}
+
+// Kullanıcının seçtiği alerjenleri içeren yemeklere "uyari" (alerjen adları) eklenir.
+// Önbellekteki menü kullanıcıya bağlı değildir; uyarı her istekte burada hesaplanır.
+async function alerjenUyarilariniEkle(menu, kullaniciId) {
+  const [secili, liste] = await Promise.all([
+    kullaniciModel.kullaniciAlerjenleri(kullaniciId),
+    kullaniciModel.alerjenListesi(),
+  ]);
+  const adlar = new Map(liste.map((a) => [a.id, a.ad]));
+  const seciliKume = new Set(secili);
+  menu.seciliSayisi = secili.length;
+  menu.uyariVar = false;
+  menu.yemekler.forEach((y) => {
+    const idler = y.alerjen_idler ? String(y.alerjen_idler).split(',').map(Number) : [];
+    y.uyari = idler.filter((id) => seciliKume.has(id)).map((id) => adlar.get(id));
+    if (y.uyari.length > 0) menu.uyariVar = true;
+  });
 }
 
 async function gunluk(req, res) {
@@ -21,6 +40,7 @@ async function gunluk(req, res) {
     if (menu) {
       // Önbellekteki menü role bağlı değildir; kullanıcının fiyatı burada seçilir.
       menu.fiyat = req.session.kullanici.rol === 'ogrenci' ? menu.ogrenciFiyati : menu.personelFiyati;
+      await alerjenUyarilariniEkle(menu, req.session.kullanici.id);
     }
     res.render('menu', { yemekhaneler, ogunler, yemekhaneId, ogunId, tarih, menu });
   } catch (err) {

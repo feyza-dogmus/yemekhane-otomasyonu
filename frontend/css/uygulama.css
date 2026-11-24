@@ -125,3 +125,15 @@ main.kapsayici { padding-top: 1rem; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+/* Alerjen uyarısı ve profil */
+.yemek-listesi li.uyarili {
+  background: var(--hata-zemin);
+  border-left: 4px solid var(--hata);
+  padding-left: 0.6rem;
+}
+.alerjen-secenekleri {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0 1rem;
+  margin-bottom: 1rem;
+}

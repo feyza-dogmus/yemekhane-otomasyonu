@@ -52,6 +52,7 @@ async function baslat() {
   app.use('/', require('./routes/rezervasyon'));
   app.use('/', require('./routes/bakiye'));
   app.use('/', require('./routes/degerlendirme'));
+  app.use('/', require('./routes/profil'));
   app.use('/', require('./routes/yonetim'));
 
   app.listen(PORT, () => {
