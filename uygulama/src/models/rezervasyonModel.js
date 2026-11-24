@@ -4,9 +4,10 @@
 // Listeleme REPLİKAdan yapılır.
 const { yazma, okuma } = require('../config/db');
 
-async function yap(kullaniciId, menuId) {
-  const [sonuc] = await yazma.query('CALL sp_rezervasyon_yap(?, ?)', [kullaniciId, menuId]);
-  return sonuc[0][0]; // { rezervasyon_id, ucret, bakiye }
+// porsiyon: 'tam' veya 'yarim'. Geçerlilik ve ücret hesabı yordamda yapılır.
+async function yap(kullaniciId, menuId, porsiyon) {
+  const [sonuc] = await yazma.query('CALL sp_rezervasyon_yap(?, ?, ?)', [kullaniciId, menuId, porsiyon]);
+  return sonuc[0][0]; // { rezervasyon_id, ucret, bakiye, porsiyon }
 }
 
 async function iptalEt(kullaniciId, rezervasyonId) {
@@ -16,7 +17,7 @@ async function iptalEt(kullaniciId, rezervasyonId) {
 
 async function kullanicininRezervasyonlari(kullaniciId) {
   const [s] = await okuma.query(
-    `SELECT r.id, r.durum, r.ucret, r.kullanma_zamani, r.iptal_zamani,
+    `SELECT r.id, r.durum, r.porsiyon, r.ucret, r.kullanma_zamani, r.iptal_zamani,
             m.id AS menu_id, m.tarih, yh.ad AS yemekhane, o.ad AS ogun,
             TIMESTAMP(m.tarih, o.son_saat) AS rezervasyon_son,
             (NOW() < TIMESTAMP(m.tarih, o.son_saat)) AS iptal_edilebilir

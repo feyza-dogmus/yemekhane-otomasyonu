@@ -21,7 +21,8 @@ async function gunluk(req, res) {
     if (menu) {
       // Önbellekteki menü role bağlı değildir; kullanıcının fiyatı burada seçilir.
       menu.fiyat = req.session.kullanici.rol === 'ogrenci' ? menu.ogrenciFiyati : menu.personelFiyati;
-    }    res.render('menu', { yemekhaneler, ogunler, yemekhaneId, ogunId, tarih, menu });
+    }
+    res.render('menu', { yemekhaneler, ogunler, yemekhaneId, ogunId, tarih, menu });
   } catch (err) {
     console.error(err);
     res.status(500).render('hata', { mesaj: 'Menü yüklenemedi.' });
@@ -47,16 +48,19 @@ async function rezervasyonYap(req, res) {
   const yemekhaneId = sayi(req.body.yemekhane, 1);
   const geri = `/haftalik?yemekhane=${yemekhaneId}`;
   const menuId = sayi(req.body.menu_id, null);
+  // Porsiyon gelmezse (kahvaltı) tam porsiyon. Geçerlilik yordamda denetlenir.
+  const porsiyon = String(req.body.porsiyon || 'tam');
   if (!menuId) {
     req.session.mesaj = { tur: 'hata', metin: 'Geçersiz menü.' };
     return res.redirect(geri);
   }
   try {
     // Başarıda gösterilen bakiye KAYNAKTAN (yordamın cevabı) gelir, replikadan değil.
-    const r = await rezervasyonModel.yap(req.session.kullanici.id, menuId);
+    const r = await rezervasyonModel.yap(req.session.kullanici.id, menuId, porsiyon);
+    const tur = r.porsiyon === 'yarim' ? 'yarım porsiyon' : 'tam porsiyon';
     req.session.mesaj = {
       tur: 'basari',
-      metin: `Rezervasyon yapıldı. Ücret: ${Number(r.ucret).toFixed(2)} TL, kalan bakiye: ${Number(r.bakiye).toFixed(2)} TL.`,
+      metin: `Rezervasyon yapıldı (${tur}). Ücret: ${Number(r.ucret).toFixed(2)} TL, kalan bakiye: ${Number(r.bakiye).toFixed(2)} TL.`,
     };
   } catch (err) {
     req.session.mesaj = { tur: 'hata', metin: kullaniciMesaji(err) };

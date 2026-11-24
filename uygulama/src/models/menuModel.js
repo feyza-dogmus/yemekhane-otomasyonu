@@ -57,20 +57,24 @@ async function gunlukMenu(yemekhaneId, tarih, ogunId) {
   return menu;
 }
 
-// Bugünden başlayarak 7 gün: doluluk, rolüne göre fiyat, kullanıcının rezervasyon durumu.
+// Bugünden başlayarak 7 gün: doluluk, rolüne göre fiyat, yarım porsiyon fiyatı
+// (oranı olmayan öğünde NULL), kullanıcının rezervasyon durumu.
 async function haftalikMenu(yemekhaneId, kullaniciId, rol) {
   const [s] = await okuma.query(
     `SELECT d.menu_id, d.tarih, d.ogun_id, d.ogun, d.bos_yer, d.rezervasyon_son,
             (NOW() >= d.rezervasyon_son) AS suresi_doldu,
             IF(? = 'ogrenci', m.ogrenci_fiyati, m.personel_fiyati) AS fiyat,
+            ROUND(IF(? = 'ogrenci', m.ogrenci_fiyati, m.personel_fiyati)
+                  * o.yarim_porsiyon_orani, 2) AS yarim_fiyat,
             r.durum AS rezervasyon_durumu
        FROM v_menu_doluluk d
        JOIN menuler m ON m.id = d.menu_id
+       JOIN ogunler o ON o.id = d.ogun_id
        LEFT JOIN rezervasyonlar r ON r.menu_id = d.menu_id AND r.kullanici_id = ?
       WHERE d.yemekhane_id = ?
         AND d.tarih BETWEEN CURDATE() AND CURDATE() + INTERVAL 6 DAY
       ORDER BY d.tarih, d.ogun_id`,
-    [rol, kullaniciId, yemekhaneId]
+    [rol, rol, kullaniciId, yemekhaneId]
   );
   return s;
 }

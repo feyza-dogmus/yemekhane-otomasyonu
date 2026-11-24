@@ -17,6 +17,7 @@
           <span><%= r.yemekhane %></span>
           <span>Ücret: <strong><%= Number(r.ucret).toFixed(2) %> TL</strong></span>
           <span class="rozet <%= rozet[r.durum] %>"><%= etiket[r.durum] %></span>
+        <% if (r.porsiyon === 'yarim') { %><span class="rozet rozet-sari">Yarım porsiyon</span><% } %>
         </div>
         <div class="menu-eylem">
           <% if (r.durum === 'aktif') { %>

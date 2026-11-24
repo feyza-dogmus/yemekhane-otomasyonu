@@ -27,6 +27,9 @@
             <strong><%= m.ogun %></strong>
             <span class="soluk">Son saat: <%= m.rezervasyon_son.slice(11, 16) %></span>
             <span>Fiyat: <strong><%= Number(m.fiyat).toFixed(2) %> TL</strong></span>
+            <% if (m.yarim_fiyat !== null) { %>
+              <span class="soluk">Yarım porsiyon: <%= Number(m.yarim_fiyat).toFixed(2) %> TL</span>
+            <% } %>
             <span class="<%= m.bos_yer <= 5 ? 'bos-az' : '' %>">Boş yer: <%= m.bos_yer %></span>
             <a href="/menu?yemekhane=<%= yemekhaneId %>&tarih=<%= tarih %>&ogun=<%= m.ogun_id %>">Menüyü gör</a>
           </div>
@@ -42,6 +45,13 @@
                 <% } else if (m.bos_yer <= 0) { %>
                   <button class="dugme" type="button" disabled>Dolu</button>
                 <% } else { %>
+                  <% if (m.yarim_fiyat !== null) { %>
+                    <label class="gizli-etiket" for="porsiyon-<%= m.menu_id %>">Porsiyon</label>
+                    <select id="porsiyon-<%= m.menu_id %>" name="porsiyon">
+                      <option value="tam">Tam porsiyon · <%= Number(m.fiyat).toFixed(2) %> TL</option>
+                      <option value="yarim">Yarım porsiyon · <%= Number(m.yarim_fiyat).toFixed(2) %> TL</option>
+                    </select>
+                  <% } %>
                   <button class="dugme" type="submit">Rezervasyon yap</button>
                 <% } %>
               </form>

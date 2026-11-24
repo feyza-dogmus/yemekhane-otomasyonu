@@ -114,3 +114,14 @@ main.kapsayici { padding-top: 1rem; }
   .ustbar nav a { min-height: 40px; padding: 0.5rem 0; }
   .ustbar form { flex: 0 0 100%; justify-content: space-between; }
 }
+/* Porsiyon seçimi (haftalık menü) */
+.menu-eylem form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.menu-eylem select { width: auto; min-height: 44px; }
+.gizli-etiket {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
